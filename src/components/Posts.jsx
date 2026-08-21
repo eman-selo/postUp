@@ -9,7 +9,12 @@ export default function Posts() {
 
   return (
     <>
-      <Container maxWidth="md">
+      <Container
+        maxWidth="md"
+        sx={{
+          px: { xs: 2, sm: 3, md: 4 },
+        }}
+      >
         {posts.map((post) => {
           return (
             <Link

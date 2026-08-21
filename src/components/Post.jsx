@@ -11,48 +11,45 @@ import {
   Typography,
   CircularProgress,
 } from "@mui/material";
-import { red } from "@mui/material/colors";
 import placeholderImg from "../assets/placeholder1.jpg";
 import { ModeComment } from "@mui/icons-material";
 import { useParams } from "react-router";
 import PostComments from "./PostComments";
-import { useContext, useEffect, useState } from "react";
-import { PostsContext, baseUrl } from "../contexts/getPostsContext";
+import AddComment from "./AddComment";
+import { useEffect, useState } from "react";
+import { baseUrl } from "../contexts/getPostsContext";
 import axios from "axios";
 
 export default function Post({ post: propPost }) {
   const { postId } = useParams();
-  const { posts } = useContext(PostsContext);
 
   const [currentPost, setCurrentPost] = useState(propPost || null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (propPost) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setCurrentPost(propPost);
-      return;
-    }
-
     if (postId) {
-      const foundInContext = posts?.find(
-        (p) => String(p.id) === String(postId),
-      );
-
-      if (foundInContext) {
-        setCurrentPost(foundInContext);
-      } else {
-        setLoading(true);
-        axios
-          .get(`${baseUrl}/posts/${postId}`)
-          .then((res) => {
-            setCurrentPost(res.data.data);
-          })
-          .catch((err) => console.error("Error fetching post details:", err))
-          .finally(() => setLoading(false));
-      }
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setLoading(true);
+      axios
+        .get(`${baseUrl}/posts/${postId}`)
+        .then((res) => {
+          setCurrentPost(res.data.data);
+        })
+        .catch((err) => console.error("Error fetching post details:", err))
+        .finally(() => setLoading(false));
+    } else if (propPost) {
+      setCurrentPost(propPost);
     }
-  }, [propPost, postId, posts]);
+  }, [postId, propPost]);
+
+  // Function to add the new comment directly to the local list
+  const handleCommentAdded = (newComment) => {
+    setCurrentPost((prevPost) => ({
+      ...prevPost,
+      comments: [...(prevPost.comments || []), newComment],
+      comments_count: (prevPost.comments_count || 0) + 1,
+    }));
+  };
 
   if (loading) {
     return (
@@ -63,10 +60,7 @@ export default function Post({ post: propPost }) {
   }
 
   const post = currentPost;
-
-  if (!post) {
-    return null;
-  }
+  if (!post) return null;
 
   const hasProfileImage =
     post.author?.profile_image &&
@@ -83,7 +77,7 @@ export default function Post({ post: propPost }) {
           sx={{ background: "rgb(148 176 203 / 23%)" }}
           avatar={
             <Avatar
-              sx={{ bgcolor: red[500] }}
+              sx={{ bgcolor: "#085071" }}
               aria-label="recipe"
               src={hasProfileImage ? post.author.profile_image : undefined}
             >
@@ -129,14 +123,6 @@ export default function Post({ post: propPost }) {
               alignItems: "center",
               color: "text.secondary",
               cursor: "pointer",
-              "@media (hover: hover)": {
-                "&:hover, &:focus": {
-                  color: "primary.main",
-                  "& svg": {
-                    opacity: 1,
-                  },
-                },
-              },
             }}
           >
             <ModeComment
@@ -149,18 +135,22 @@ export default function Post({ post: propPost }) {
             {post.comments_count ?? 0}
           </Box>
         </CardActions>
-
+        {/* Render comments and input field only on single post page */}
         {postId && (
-          <Divider
-            sx={{
-              my: 1.5,
-              borderColor: "rgba(0, 0, 0, 0.08)",
-              borderStyle: "solid",
-            }}
-          />
-        )}
+          <Box sx={{ pb: 2 }}>
+            <Divider sx={{ my: 1.5 }} />
 
-        {postId && <PostComments />}
+            {/* Render Comments List*/}
+            {(post.comments || []).map((comment) => (
+              <PostComments key={comment.id} comment={comment} />
+            ))}
+
+            {/* Comment Input Field */}
+            <Box sx={{ px: 2, pt: 1 }}>
+              <AddComment postId={postId} onCommentAdded={handleCommentAdded} />
+            </Box>
+          </Box>
+        )}
       </Card>
     </Container>
   );

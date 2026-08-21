@@ -24,7 +24,7 @@ function Navbar() {
   const [openRegisterDialog, setOpenRegisterDialog] = useState(false);
   const [openNewPostDialog, setOpenNewPostDialog] = useState(false);
 
-  // 1. قراءة البيانات عند بداية التهيئة بدون useEffect
+  // Reading data on initial mount without using useEffect
   const [user, setUser] = useState(() => {
     const savedUser = localStorage.getItem("user");
     if (savedUser) {
@@ -38,7 +38,7 @@ function Navbar() {
     return null;
   });
 
-  // 2. دالة تُستدعى فقط عند نجاح التسجيل/الدخول
+  // A callback function executed only on successful registration/login
   const updateUserState = () => {
     const savedUser = localStorage.getItem("user");
     if (savedUser) {
@@ -54,7 +54,7 @@ function Navbar() {
     }
   };
 
-  // 3. دالة تسجيل الخروج Logout
+  // Logout Clicked
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
@@ -71,6 +71,13 @@ function Navbar() {
   const handleCloseRegisterDialog = () => setOpenRegisterDialog(false);
   const handleClickOpenNewPostDialog = () => setOpenNewPostDialog(true);
   const handleCloseNewPostDialog = () => setOpenNewPostDialog(false);
+  const hasProfileImage =
+    user?.profile_image &&
+    typeof user.profile_image === "string" &&
+    user.profile_image.trim() !== "" &&
+    user.profile_image !== "null";
+  const displayName = user?.username || user?.name || "User";
+  const firstLetter = displayName.charAt(0).toUpperCase();
 
   return (
     <>
@@ -177,7 +184,7 @@ function Navbar() {
               ))}
             </Box>
 
-            {/* عرض الأزرار أو صورة واسم المستخدم مع زر الخروج */}
+            {/* Render auth buttons, or user avatar and name with logout button */}
             {!user ? (
               <Box>
                 <Button
@@ -198,7 +205,12 @@ function Navbar() {
               </Box>
             ) : (
               <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-                <Avatar alt={user?.username} src={user?.profile_image} />
+                <Avatar
+                  src={hasProfileImage ? user.profile_image : undefined}
+                  sx={{ bgcolor: "#085071", width: 40, height: 40 }}
+                >
+                  {!hasProfileImage && firstLetter}
+                </Avatar>
                 <Typography
                   variant="h6"
                   noWrap
@@ -222,10 +234,17 @@ function Navbar() {
                 <AddCircleIcon
                   sx={{
                     position: "fixed",
-                    bottom: "10px",
-                    right: "50px",
-                    fontSize: "50px",
-                    color: " #8cadcf",
+                    bottom: { xs: "20px", sm: "30px", md: "40px" },
+                    right: {
+                      xs: "-2px",
+                      sm: "-1px",
+                      md: "40px",
+                    },
+                    fontSize: { xs: "45px", sm: "55px", md: "60px" },
+                    color: "#8cadcf",
+                    cursor: "pointer",
+                    zIndex: 1000,
+                    transition: "all 0.2s ease-in-out",
                   }}
                   onClick={handleClickOpenNewPostDialog}
                 />

@@ -9,16 +9,24 @@ import Profile from "./components/Profile";
 import { PostsProvider } from "./contexts/getPostsContext.jsx";
 import { AlertProvider } from "./contexts/AlertContext.jsx";
 import Post from "./components/Post.jsx";
+
 function App() {
   return (
     <>
       <PostsProvider>
         <AlertProvider>
           <ThemeProvider theme={theme}>
-            <Container maxWidth="md" sx={{ marginBottom: "80px" }}>
+            <Container
+              maxWidth="md"
+              sx={{
+                marginBottom: { xs: "30px", sm: "80px" },
+                px: { xs: 1, sm: 2, md: 3 },
+              }}
+            >
               <Navbar />
             </Container>
           </ThemeProvider>
+
           <Routes>
             <Route path="/home" element={<Posts />} />
             <Route path="/" element={<Posts />} />
