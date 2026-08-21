@@ -1,6 +1,6 @@
 import { Avatar, Box, Card, Container, Typography } from "@mui/material";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutlineOutlined";
-import { useParams } from "react-router";
+import { Link, useParams } from "react-router";
 import { baseUrl } from "../contexts/getPostsContext";
 import axios from "axios";
 import { useEffect, useState } from "react";
@@ -43,7 +43,6 @@ export default function Profile() {
             marginBottom: "20px",
           }}
         >
-          {/* 1. قسم الصورة/الأيقونة والبيانات الشخصية */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
             <Avatar
               sx={{
@@ -69,7 +68,6 @@ export default function Profile() {
             </Box>
           </Box>
 
-          {/* 2. قسم الإحصائيات (Posts & Comments) */}
           <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
             <Box sx={{ display: "flex", alignItems: "baseline", gap: 0.5 }}>
               <Typography
@@ -102,7 +100,15 @@ export default function Profile() {
           Eman's Posts
         </Typography>
         {posts && posts.length > 0 ? (
-          posts.map((post) => <Post key={post.id} post={post} />)
+          posts.map((post) => (
+            <Link
+              key={post.id}
+              to={`/post/${post.id}`}
+              style={{ textDecoration: "none", color: "inherit" }}
+            >
+              <Post post={post} />
+            </Link>
+          ))
         ) : (
           <Typography color="white">No posts found.</Typography>
         )}

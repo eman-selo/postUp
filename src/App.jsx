@@ -8,6 +8,7 @@ import Posts from "./components/Posts";
 import Profile from "./components/Profile";
 import { PostsProvider } from "./contexts/getPostsContext.jsx";
 import { AlertProvider } from "./contexts/AlertContext.jsx";
+import Post from "./components/Post.jsx";
 function App() {
   return (
     <>
@@ -21,6 +22,7 @@ function App() {
           <Routes>
             <Route path="/home" element={<Posts />} />
             <Route path="/" element={<Posts />} />
+            <Route path="/post/:postId" element={<Post />} />
             <Route path="/profile/:userId" element={<Profile />} />
           </Routes>
         </AlertProvider>
