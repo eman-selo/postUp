@@ -1,6 +1,6 @@
 import { Avatar, Box, Card, Container, Typography } from "@mui/material";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutlineOutlined";
-import { Link, useParams } from "react-router";
+import { useParams } from "react-router";
 import { baseUrl } from "../contexts/getPostsContext";
 import axios from "axios";
 import { useEffect, useState } from "react";
@@ -25,6 +25,9 @@ export default function Profile() {
         });
     }
   }, [userId]);
+  const handlePostDeleted = (deletedPostId) => {
+    setPosts((prevPosts) => prevPosts.filter((p) => p.id !== deletedPostId));
+  };
   return (
     <>
       <Container maxWidth="md">
@@ -101,13 +104,7 @@ export default function Profile() {
         </Typography>
         {posts && posts.length > 0 ? (
           posts.map((post) => (
-            <Link
-              key={post.id}
-              to={`/post/${post.id}`}
-              style={{ textDecoration: "none", color: "inherit" }}
-            >
-              <Post post={post} />
-            </Link>
+            <Post key={post.id} post={post} onPostDeleted={handlePostDeleted} />
           ))
         ) : (
           <Typography color="white">No posts found.</Typography>

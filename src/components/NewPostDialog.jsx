@@ -32,7 +32,6 @@ export default function NewPostDialog({ open, handleClose }) {
     const token = localStorage.getItem("token");
     let url = `${baseUrl}/posts`;
 
-    // 1. تصحيح حالة الأحرف للـ Authorization Header
     const headers = {
       "Content-Type": "multipart/form-data",
       Authorization: `Bearer ${token}`,
@@ -42,7 +41,6 @@ export default function NewPostDialog({ open, handleClose }) {
     formData.append("title", newPost.title);
     formData.append("body", newPost.body);
 
-    // 2. إرسال الصورة فقط في حال تحديدها وعدم إرسال null
     if (newPost.image) {
       formData.append("image", newPost.image);
     }
@@ -53,13 +51,12 @@ export default function NewPostDialog({ open, handleClose }) {
       })
       .then((res) => {
         console.log("post created", res);
-        // إعادة تعيين الحقول وإغلاق المكون
+
         setNewPost({ title: "", body: "", image: null });
         fetchPosts();
         handleClose();
       })
       .catch((err) => {
-        // طباعة تفاصيل الخطأ بدقة لمعرفة أي حقل فشل في الـ Validation
         console.error("Validation Error Details:", err.response?.data);
       });
   }

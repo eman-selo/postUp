@@ -69,7 +69,7 @@ function Navbar() {
 
   const handleClickOpenRegisterDialog = () => setOpenRegisterDialog(true);
   const handleCloseRegisterDialog = () => setOpenRegisterDialog(false);
-  const handleClickOpenNewPostDialog = () => setOpenNewPostDialog(true);
+  const handleOpenNewPostDialog = () => setOpenNewPostDialog(true);
   const handleCloseNewPostDialog = () => setOpenNewPostDialog(false);
   const hasProfileImage =
     user?.profile_image &&
@@ -134,7 +134,7 @@ function Navbar() {
                 {pages.map((page) => (
                   <MenuItem key={page} onClick={handleCloseNavMenu}>
                     <Link
-                      to={`/${page}${page === "profile" ? `/${user.id}` : ""}`}
+                      to={`/${page}${page === "profile" ? `/${user?.id || ""}` : ""}`}
                       style={{ textDecoration: "none", color: "inherit" }}
                     >
                       <Typography sx={{ textAlign: "center" }}>
@@ -171,7 +171,7 @@ function Navbar() {
               {pages.map((page) => (
                 <Link
                   key={page}
-                  to={`/${page}${page === "profile" ? `/${user.id}` : ""}`}
+                  to={`/${page}${page === "profile" ? `/${user?.id || ""}` : ""}`}
                   style={{ textDecoration: "none" }}
                 >
                   <Button
@@ -246,7 +246,7 @@ function Navbar() {
                     zIndex: 1000,
                     transition: "all 0.2s ease-in-out",
                   }}
-                  onClick={handleClickOpenNewPostDialog}
+                  onClick={handleOpenNewPostDialog}
                 />
               </Box>
             )}
