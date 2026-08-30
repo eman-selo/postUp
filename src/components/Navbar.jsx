@@ -18,7 +18,7 @@ import { Avatar } from "@mui/material";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import NewPostDialog from "./NewPostDialog";
 function Navbar() {
-  const pages = ["home", "profile"];
+  const pages = ["home", "myPosts"];
   const [anchorElNav, setAnchorElNav] = useState(null);
   const [openLoginDialog, setOpenLoginDialog] = useState(false);
   const [openRegisterDialog, setOpenRegisterDialog] = useState(false);
@@ -134,7 +134,7 @@ function Navbar() {
                 {pages.map((page) => (
                   <MenuItem key={page} onClick={handleCloseNavMenu}>
                     <Link
-                      to={`/${page}${page === "profile" ? `/${user?.id || ""}` : ""}`}
+                      to={`/${page}${page === "myPosts" ? `/${user?.id || ""}` : ""}`}
                       style={{ textDecoration: "none", color: "inherit" }}
                     >
                       <Typography sx={{ textAlign: "center" }}>
@@ -171,7 +171,7 @@ function Navbar() {
               {pages.map((page) => (
                 <Link
                   key={page}
-                  to={`/${page}${page === "profile" ? `/${user?.id || ""}` : ""}`}
+                  to={`/${page}${page === "myPosts" ? `/${user?.id || ""}` : ""}`}
                   style={{ textDecoration: "none" }}
                 >
                   <Button
@@ -204,51 +204,56 @@ function Navbar() {
                 </Button>
               </Box>
             ) : (
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-                <Avatar
-                  src={hasProfileImage ? user.profile_image : undefined}
-                  sx={{ bgcolor: "#085071", width: 40, height: 40 }}
-                >
-                  {!hasProfileImage && firstLetter}
-                </Avatar>
-                <Typography
-                  variant="h6"
-                  noWrap
-                  sx={{
-                    fontFamily: "monospace",
-                    fontWeight: 700,
-                    color: "inherit",
-                  }}
-                >
-                  {user?.username}
-                </Typography>
-                <Button
-                  variant="contained"
-                  color="error"
-                  size="small"
-                  onClick={handleLogout}
-                  sx={{ ml: 1 }}
-                >
-                  Logout
-                </Button>
-                <AddCircleIcon
-                  sx={{
-                    position: "fixed",
-                    bottom: { xs: "20px", sm: "30px", md: "40px" },
-                    right: {
-                      xs: "-2px",
-                      sm: "-1px",
-                      md: "40px",
-                    },
-                    fontSize: { xs: "45px", sm: "55px", md: "60px" },
-                    color: "#8cadcf",
-                    cursor: "pointer",
-                    zIndex: 1000,
-                    transition: "all 0.2s ease-in-out",
-                  }}
-                  onClick={handleOpenNewPostDialog}
-                />
-              </Box>
+              <Link
+                to={`/profile/${user.id}`}
+                style={{ textDecoration: "none", color: "white" }}
+              >
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                  <Avatar
+                    src={hasProfileImage ? user.profile_image : undefined}
+                    sx={{ bgcolor: "#085071", width: 40, height: 40 }}
+                  >
+                    {!hasProfileImage && firstLetter}
+                  </Avatar>
+                  <Typography
+                    variant="h6"
+                    noWrap
+                    sx={{
+                      fontFamily: "monospace",
+                      fontWeight: 700,
+                      color: "inherit",
+                    }}
+                  >
+                    {user?.username}
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    color="error"
+                    size="small"
+                    onClick={handleLogout}
+                    sx={{ ml: 1 }}
+                  >
+                    Logout
+                  </Button>
+                  <AddCircleIcon
+                    sx={{
+                      position: "fixed",
+                      bottom: { xs: "20px", sm: "30px", md: "40px" },
+                      right: {
+                        xs: "-2px",
+                        sm: "-1px",
+                        md: "40px",
+                      },
+                      fontSize: { xs: "45px", sm: "55px", md: "60px" },
+                      color: "#8cadcf",
+                      cursor: "pointer",
+                      zIndex: 1000,
+                      transition: "all 0.2s ease-in-out",
+                    }}
+                    onClick={handleOpenNewPostDialog}
+                  />
+                </Box>
+              </Link>
             )}
           </Toolbar>
         </Container>

@@ -19,7 +19,7 @@ import {
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
-import placeholderImg from "../assets/placeholder1.jpg";
+import noImage from "../assets/NoImage.jpg";
 import { ModeComment } from "@mui/icons-material";
 import { Link, useNavigate, useParams } from "react-router";
 import PostComments from "./PostComments";
@@ -153,56 +153,61 @@ export default function Post({ post: propPost, onPostDeleted }) {
   return (
     <Container maxWidth="md">
       <Card sx={{ width: "100%", marginTop: "40px" }}>
-        <CardHeader
-          sx={{ background: "rgb(148 176 203 / 23%)" }}
-          avatar={
-            <Avatar
-              sx={{ bgcolor: "#085071" }}
-              aria-label="recipe"
-              src={hasProfileImage ? post.author.profile_image : undefined}
-            >
-              {!hasProfileImage && post.author?.name
-                ? post.author.name[0].toUpperCase()
-                : "U"}
-            </Avatar>
-          }
-          title={post.author?.username || post.author?.name || "مستخدم مجهول"}
-          action={
-            isMyPost && (
-              <Box sx={{ display: "flex", gap: 1 }}>
-                <Button
-                  variant="contained"
-                  startIcon={<EditIcon />}
-                  onClick={(e) => {
-                    e.preventDefault(); // منع سلوك الـ Link
-                    e.stopPropagation(); // منع انتقال حدث الضغطة للرابط المغلف
-                    handleOpenUpdateDialog();
-                  }}
-                >
-                  Update
-                </Button>
-                <Button
-                  variant="contained"
-                  color="error"
-                  startIcon={<DeleteIcon />}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handleOpenDeleteDialog(); // فتح النافذة
-                  }}
-                >
-                  Delete
-                </Button>
-              </Box>
-            )
-          }
-        />
+        <Link
+          to={`/profile/${post.author.id}`}
+          style={{ textDecoration: "none", color: "#085071" }}
+        >
+          <CardHeader
+            sx={{ background: "rgb(148 176 203 / 23%)" }}
+            avatar={
+              <Avatar
+                sx={{ bgcolor: "#085071" }}
+                aria-label="recipe"
+                src={hasProfileImage ? post.author.profile_image : undefined}
+              >
+                {!hasProfileImage && post.author?.name
+                  ? post.author.name[0].toUpperCase()
+                  : "U"}
+              </Avatar>
+            }
+            title={post.author?.username || post.author?.name || "مستخدم مجهول"}
+            action={
+              isMyPost && (
+                <Box sx={{ display: "flex", gap: 1 }}>
+                  <Button
+                    variant="contained"
+                    startIcon={<EditIcon />}
+                    onClick={(e) => {
+                      e.preventDefault(); // منع سلوك الـ Link
+                      e.stopPropagation(); // منع انتقال حدث الضغطة للرابط المغلف
+                      handleOpenUpdateDialog();
+                    }}
+                  >
+                    Update
+                  </Button>
+                  <Button
+                    variant="contained"
+                    color="error"
+                    startIcon={<DeleteIcon />}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleOpenDeleteDialog(); // فتح النافذة
+                    }}
+                  >
+                    Delete
+                  </Button>
+                </Box>
+              )
+            }
+          />
+        </Link>
         <Divider />
         <Link to={`/post/${post.id}`}>
           <CardMedia
             component="img"
             height="350"
-            image={hasPostImage ? post.image : placeholderImg}
+            image={hasPostImage ? post.image : noImage}
             alt={post.title || "Post image"}
             sx={{ cursor: "pointer" }}
           />
@@ -230,27 +235,29 @@ export default function Post({ post: propPost, onPostDeleted }) {
         </CardContent>
         <Divider />
         <CardActions disableSpacing>
-          <Box
-            component="button"
-            type="button"
-            sx={{
-              display: "flex",
-              border: "none",
-              background: "transparent",
-              alignItems: "center",
-              color: "text.secondary",
-              cursor: "pointer",
-            }}
-          >
-            <ModeComment
+          <Link to={`/post/${post.id}`} style={{ textDecoration: "none" }}>
+            <Box
+              component="button"
+              type="button"
               sx={{
-                opacity: 0.6,
-                fontSize: "1.125em",
-                marginRight: 1,
+                display: "flex",
+                border: "none",
+                background: "transparent",
+                alignItems: "center",
+                color: "text.secondary",
+                cursor: "pointer",
               }}
-            />
-            {post.comments_count ?? 0}
-          </Box>
+            >
+              <ModeComment
+                sx={{
+                  opacity: 0.6,
+                  fontSize: "1.125em",
+                  marginRight: 1,
+                }}
+              />
+              {post.comments_count ?? 0}
+            </Box>
+          </Link>
         </CardActions>
 
         {postId && (

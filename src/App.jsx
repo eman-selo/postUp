@@ -5,10 +5,12 @@ import { ThemeProvider } from "@mui/material/styles";
 import { theme } from "./components/Theme";
 import { Route, Routes } from "react-router";
 import Posts from "./components/Posts";
-import Profile from "./components/Profile";
+
 import { PostsProvider } from "./contexts/getPostsContext.jsx";
 import { AlertProvider } from "./contexts/AlertContext.jsx";
 import Post from "./components/Post.jsx";
+import MyPosts from "./components/MyPosts.jsx";
+import Profile from "./components/Profile.jsx";
 
 function App() {
   return (
@@ -30,8 +32,10 @@ function App() {
           <Routes>
             <Route path="/home" element={<Posts />} />
             <Route path="/" element={<Posts />} />
-            <Route path="/post/:postId" element={<Post />} />
             <Route path="/profile/:userId" element={<Profile />} />
+
+            <Route path="/post/:postId" element={<Post />} />
+            <Route path="/myPosts/:userId" element={<MyPosts />} />
           </Routes>
         </AlertProvider>
       </PostsProvider>
