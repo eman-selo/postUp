@@ -6,11 +6,10 @@ import {
   Typography,
   CircularProgress,
 } from "@mui/material";
-// import PersonOutlineIcon from "@mui/icons-material/PersonOutlineOutlined";
 import { useParams } from "react-router";
 import { baseUrl } from "../contexts/getPostsContext";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Post from "./Post";
 
 export default function MyPosts() {
@@ -19,32 +18,69 @@ export default function MyPosts() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // 1. جلب البيانات من السيرفر عند التحميل أو تغير الـ userId
   useEffect(() => {
-    if (userId) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setLoading(true);
+    if (!userId) return;
 
-      // إنشاء طلب جلب بيانات المستخدم
-      const fetchUserData = axios.get(`${baseUrl}/users/${userId}`);
-      // إنشاء طلب جلب منشورات المستخدم
-      const fetchUserPosts = axios.get(`${baseUrl}/users/${userId}/posts`);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setLoading(true);
 
-      // تنفيذ الطلبين معاً في نفس الوقت
-      Promise.all([fetchUserData, fetchUserPosts])
-        .then(([userRes, postsRes]) => {
-          // حفظ بيانات المستخدم
-          setUser(userRes.data.data);
-          // حفظ المنشورات
-          setPosts(postsRes.data.data || []);
-        })
-        .catch((err) => {
-          console.error("Error fetching profile data:", err);
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    }
+    const fetchUserData = axios.get(`${baseUrl}/users/${userId}`);
+    const fetchUserPosts = axios.get(`${baseUrl}/users/${userId}/posts`);
+
+    Promise.all([fetchUserData, fetchUserPosts])
+      .then(([userRes, postsRes]) => {
+        setUser(userRes.data.data);
+        setPosts(postsRes.data.data || []);
+      })
+      .catch((err) => {
+        console.error("Error fetching profile data:", err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, [userId]);
+
+  // 2. معالج الحدث عند إنشاء منشور جديد
+  const handleNewPostCreated = useCallback(
+    (event) => {
+      const createdPost = event.detail;
+      if (!createdPost) return;
+
+      // استخراج معرف الكاتب بأكثر من طريقة لضمان التطابق
+      const authorId =
+        createdPost.author?.id ?? createdPost.user?.id ?? createdPost.user_id;
+
+      // إذا كان المنشور يخص المستخدم الحالي المعروض أو إذا تعذر معرفة المعرف (يضاف احتياطياً)
+      const isCurrentProfileUser =
+        String(authorId) === String(userId) || !authorId;
+
+      if (isCurrentProfileUser) {
+        // إضافة المنشور في الأعلى مع التأكد من عدم التكرار
+        setPosts((prevPosts) => {
+          const exists = prevPosts.some((p) => p.id === createdPost.id);
+          return exists ? prevPosts : [createdPost, ...prevPosts];
+        });
+
+        // تحديث عداد المنشورات
+        setUser((prevUser) =>
+          prevUser
+            ? { ...prevUser, posts_count: (prevUser.posts_count || 0) + 1 }
+            : prevUser,
+        );
+      }
+    },
+    [userId],
+  );
+
+  // 3. الاشتراك في الحدث وإلغاء الاشتراك عند التنظيف
+  useEffect(() => {
+    window.addEventListener("postCreated", handleNewPostCreated);
+
+    return () => {
+      window.removeEventListener("postCreated", handleNewPostCreated);
+    };
+  }, [handleNewPostCreated]);
 
   const handlePostDeleted = (deletedPostId) => {
     setPosts((prevPosts) => prevPosts.filter((p) => p.id !== deletedPostId));
@@ -94,7 +130,6 @@ export default function MyPosts() {
                 src={user.profile_image}
                 alt=""
                 onError={(e) => {
-                  // إخفاء الـ img في حال كان الرابط تالفاً لإظهار الحرف الافتراضي
                   e.currentTarget.style.display = "none";
                 }}
                 style={{ width: "100%", height: "100%", objectFit: "cover" }}

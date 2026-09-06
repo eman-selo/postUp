@@ -16,10 +16,10 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
+  Skeleton,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
-import noImage from "../assets/NoImage.jpg";
 import { ModeComment } from "@mui/icons-material";
 import { Link, useNavigate, useParams } from "react-router";
 import PostComments from "./PostComments";
@@ -28,6 +28,7 @@ import { useContext, useEffect, useState } from "react";
 import { baseUrl, PostsContext } from "../contexts/getPostsContext";
 import axios from "axios";
 import UpdatePostDialog from "./UpdatePostDialog";
+import NoImage from "../assets/NoImage.jpg";
 
 export default function Post({ post: propPost, onPostDeleted }) {
   const { postId } = useParams();
@@ -41,6 +42,7 @@ export default function Post({ post: propPost, onPostDeleted }) {
   // دوال فتح وإغلاق النافذة
   const handleOpenDeleteDialog = () => setOpenDeleteDialog(true);
   const handleCloseDeleteDialog = () => setOpenDeleteDialog(false);
+
   // 1. استخدام useState وقراءة المستخدم عند كل ريندر أو تحديث
   const [user, setUser] = useState(() => {
     try {
@@ -98,27 +100,44 @@ export default function Post({ post: propPost, onPostDeleted }) {
   const post = currentPost;
   if (!post) return null;
 
+  // --- استخراج ومعالجة رابط الصورة ---
+  const getImageUrl = (imageProp) => {
+    if (typeof imageProp === "string") return imageProp;
+    if (imageProp && typeof imageProp === "object" && imageProp.url) {
+      return imageProp.url;
+    }
+    return null;
+  };
+
+  const imageUrl = getImageUrl(post.image);
+
   const hasProfileImage =
     post.author?.profile_image &&
     typeof post.author.profile_image === "string" &&
     post.author.profile_image.trim() !== "";
 
+  // فحص ما إذا كان هناك رابط صورة صالح
   const hasPostImage =
-    typeof post.image === "string" && post.image.trim() !== "";
+    Boolean(imageUrl) &&
+    typeof imageUrl === "string" &&
+    imageUrl.trim() !== "" &&
+    !imageUrl.includes("[object Object]");
 
   const isMyPost = Boolean(
     user?.id && post?.author?.id && String(user.id) === String(post.author.id),
   );
+
   const handleOpenUpdateDialog = () => setopenUpdateDialog(true);
   const handleCloseUpdateDialog = () => setopenUpdateDialog(false);
+
   const handlePostUpdated = (updatedPost) => {
     setCurrentPost((prev) => ({
       ...prev,
       ...updatedPost,
-      // الحفاظ على تعليقات البوست القديمة إن لم ترجع كاملة من API التعديل
       comments: updatedPost.comments || prev?.comments,
     }));
   };
+
   function confirmDelete() {
     const token = localStorage.getItem("token");
     const headers = {
@@ -130,17 +149,14 @@ export default function Post({ post: propPost, onPostDeleted }) {
       .then(() => {
         handleCloseDeleteDialog();
 
-        // تحديث الواجهة محلياً
         if (onPostDeleted) {
           onPostDeleted(post.id);
         }
 
-        // تحديث قائمة Context العامة
         if (fetchPosts) {
           fetchPosts();
         }
 
-        // التوجيه إذا كنت داخل صفحة التفاصيل
         if (postId) {
           navigate("/");
         }
@@ -150,11 +166,12 @@ export default function Post({ post: propPost, onPostDeleted }) {
         handleCloseDeleteDialog();
       });
   }
+
   return (
     <Container maxWidth="md">
       <Card sx={{ width: "100%", marginTop: "40px" }}>
         <Link
-          to={`/profile/${post.author.id}`}
+          to={`/profile/${post.author?.id}`}
           style={{ textDecoration: "none", color: "#085071" }}
         >
           <CardHeader
@@ -178,8 +195,8 @@ export default function Post({ post: propPost, onPostDeleted }) {
                     variant="contained"
                     startIcon={<EditIcon />}
                     onClick={(e) => {
-                      e.preventDefault(); // منع سلوك الـ Link
-                      e.stopPropagation(); // منع انتقال حدث الضغطة للرابط المغلف
+                      e.preventDefault();
+                      e.stopPropagation();
                       handleOpenUpdateDialog();
                     }}
                   >
@@ -192,7 +209,7 @@ export default function Post({ post: propPost, onPostDeleted }) {
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      handleOpenDeleteDialog(); // فتح النافذة
+                      handleOpenDeleteDialog();
                     }}
                   >
                     Delete
@@ -203,14 +220,29 @@ export default function Post({ post: propPost, onPostDeleted }) {
           />
         </Link>
         <Divider />
+
         <Link to={`/post/${post.id}`}>
-          <CardMedia
-            component="img"
-            height="350"
-            image={hasPostImage ? post.image : noImage}
-            alt={post.title || "Post image"}
-            sx={{ cursor: "pointer" }}
-          />
+          {loading ? (
+            <Skeleton
+              animation="wave"
+              variant="rectangular"
+              height={350}
+              width="100%"
+            />
+          ) : (
+            <CardMedia
+              component="img"
+              height="350"
+              // استخدام الصورة الأصلية إن وجدت وإلا استخدام الصورة الافتراضية
+              image={hasPostImage ? imageUrl : NoImage}
+              alt={post?.title || "Post image"}
+              sx={{ cursor: "pointer", objectFit: "cover" }}
+              onError={(e) => {
+                // إذا فشل تحميل رابط الصورة من السيرفر، يتم استبداله بالصورة الافتراضية فوراً
+                e.currentTarget.src = NoImage;
+              }}
+            />
+          )}
         </Link>
 
         <CardContent>
@@ -274,6 +306,7 @@ export default function Post({ post: propPost, onPostDeleted }) {
           </Box>
         )}
       </Card>
+
       {/* Update Dialog */}
       <UpdatePostDialog
         open={openUpdateDialog}
@@ -281,6 +314,7 @@ export default function Post({ post: propPost, onPostDeleted }) {
         currentPost={post}
         onPostUpdated={handlePostUpdated}
       />
+
       {/* Delete Dialog */}
       <Dialog
         open={openDeleteDialog}

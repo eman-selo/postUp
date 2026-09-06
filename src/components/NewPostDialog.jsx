@@ -17,7 +17,10 @@ import axios from "axios";
 
 export default function NewPostDialog({ open, handleClose }) {
   const [newPost, setNewPost] = useState({ title: "", body: "", image: null });
-  const { fetchPosts } = useContext(PostsContext);
+
+  // استدعاء addNewPost بدلاً من refreshPosts
+  const { addNewPost } = useContext(PostsContext);
+
   const handleImageChange = (event) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -46,18 +49,30 @@ export default function NewPostDialog({ open, handleClose }) {
     }
 
     axios
-      .post(url, formData, {
-        headers: headers,
-      })
+      .post(url, formData, { headers })
       .then((res) => {
         console.log("post created", res);
 
+        // إدخال البوست القادم من السيرفر فوراً لقمة الـ State
+        if (res.data?.data) {
+          if (typeof addNewPost === "function") {
+            addNewPost(res.data.data);
+          }
+
+          // 2. إطلاق حدث مخصص ليستمع له MyPosts
+          window.dispatchEvent(
+            new CustomEvent("postCreated", { detail: res.data.data }),
+          );
+        }
+
         setNewPost({ title: "", body: "", image: null });
-        fetchPosts();
         handleClose();
       })
       .catch((err) => {
-        console.error("Validation Error Details:", err.response?.data);
+        console.error(
+          "Error creating post:",
+          err?.response?.data || err?.message || err,
+        );
       });
   }
 

@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   Box,
   CardContent,
@@ -7,6 +8,7 @@ import {
   Grid,
   Paper,
   Container,
+  CircularProgress,
 } from "@mui/material";
 import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
 import AlternateEmailIcon from "@mui/icons-material/AlternateEmail";
@@ -14,18 +16,47 @@ import BadgeOutlinedIcon from "@mui/icons-material/BadgeOutlined";
 import { useParams } from "react-router";
 import axios from "axios";
 import { baseUrl } from "../contexts/getPostsContext";
-import { useState } from "react";
 
 const Profile = () => {
   const { userId } = useParams();
-  const [user, setUser] = useState({});
-  axios.get(`${baseUrl}/users/${userId}`).then((res) => {
-    setUser(res.data.data);
-  });
-  // استخراج الحرف الأول من الاسم بشكل آمن
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // ✅ طلب البيانات داخل useEffect يمنع التكرار اللانهائي
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setLoading(true);
+    axios
+      .get(`${baseUrl}/users/${userId}`)
+      .then((res) => {
+        setUser(res.data.data);
+      })
+      .catch((err) => {
+        console.error(err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [userId]);
+
   const getInitial = (name) => {
     return name?.trim() ? name.trim().charAt(0).toUpperCase() : "U";
   };
+
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "60vh",
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Container maxWidth="sm" sx={{ py: 5 }}>
@@ -37,7 +68,6 @@ const Profile = () => {
           background: "#ffffff",
         }}
       >
-        {/* خلفية جمالية أعلى الكارت */}
         <Box
           sx={{
             height: 140,
@@ -46,9 +76,7 @@ const Profile = () => {
           }}
         />
 
-        {/* كارت المحتوى الرئيسي */}
         <CardContent sx={{ pt: 0, px: 4, pb: 4, position: "relative" }}>
-          {/* الصورة الشخصية / Avatar */}
           <Box
             sx={{
               display: "flex",
@@ -86,10 +114,9 @@ const Profile = () => {
             </Avatar>
           </Box>
 
-          {/* اسم المستخدم الرئيسي */}
-          <Box textAlign="center" mb={3}>
+          <Box sx={{ textAlign: "center", mb: 3 }}>
             <Typography variant="h5" fontWeight="bold" color="text.primary">
-              {user?.name || "اسم المستخدم"}
+              {user?.name || "Undefined"}
             </Typography>
             <Typography variant="body2" color="text.secondary" dir="ltr">
               @{user?.username || "username"}
@@ -98,7 +125,6 @@ const Profile = () => {
 
           <Divider sx={{ my: 2 }} />
 
-          {/* تفاصيل الحساب */}
           <Typography
             variant="h6"
             fontWeight="bold"
@@ -110,8 +136,7 @@ const Profile = () => {
           </Typography>
 
           <Grid container spacing={2}>
-            {/* الاسم الكامل */}
-            <Grid item xs={12}>
+            <Grid xs={12}>
               <Box
                 sx={{
                   display: "flex",
@@ -132,14 +157,13 @@ const Profile = () => {
                     Name
                   </Typography>
                   <Typography variant="body1" fontWeight="500">
-                    {user?.name || "غير محدد"}
+                    {user?.name || "Undefined"}
                   </Typography>
                 </Box>
               </Box>
             </Grid>
 
-            {/* اسم المستخدم */}
-            <Grid item xs={12}>
+            <Grid xs={12}>
               <Box
                 sx={{
                   display: "flex",
@@ -165,14 +189,13 @@ const Profile = () => {
                     dir="ltr"
                     align="right"
                   >
-                    {user?.username ? `@${user.username}` : "غير محدد"}
+                    {user?.username ? `@${user.username}` : "Undefined"}
                   </Typography>
                 </Box>
               </Box>
             </Grid>
 
-            {/* البريد الإلكتروني */}
-            <Grid item xs={12}>
+            <Grid xs={12}>
               <Box
                 sx={{
                   display: "flex",
@@ -198,7 +221,7 @@ const Profile = () => {
                     dir="ltr"
                     align="right"
                   >
-                    {user?.email || "example@mail.com"}
+                    {user?.email || "Undefined"}
                   </Typography>
                 </Box>
               </Box>
