@@ -12,7 +12,7 @@ import {
 
 import CloseIcon from "@mui/icons-material/Close";
 import { useContext, useState, useEffect } from "react";
-import { baseUrl, PostsContext } from "../contexts/getPostsContext";
+import { baseUrl, PostsContext } from "../../contexts/getPostsContext";
 import axios from "axios";
 
 export default function UpdatePostDialog({
@@ -167,7 +167,7 @@ export default function UpdatePostDialog({
         </DialogContent>
 
         <DialogActions>
-          <Button onClick={handleClose}>Cansel</Button>
+          <Button onClick={handleClose}>Cancel</Button>
           <Button onClick={handleUpdatePost} variant="contained">
             Update
           </Button>

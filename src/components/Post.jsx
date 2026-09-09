@@ -11,11 +11,6 @@ import {
   Typography,
   CircularProgress,
   Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
   Skeleton,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -24,24 +19,23 @@ import { ModeComment } from "@mui/icons-material";
 import { Link, useNavigate, useParams } from "react-router";
 import PostComments from "./PostComments";
 import AddComment from "./AddComment";
-import { useContext, useEffect, useState } from "react";
-import { baseUrl, PostsContext } from "../contexts/getPostsContext";
+import { useEffect, useState } from "react";
+import { baseUrl } from "../contexts/getPostsContext";
 import axios from "axios";
-import UpdatePostDialog from "./UpdatePostDialog";
 import NoImage from "../assets/NoImage.jpg";
+import { useUpdate } from "../contexts/UpdateContext";
+import { useDelete } from "../contexts/DeleteContext";
 
-export default function Post({ post: propPost, onPostDeleted }) {
+export default function Post({ post: propPost }) {
   const { postId } = useParams();
   const navigate = useNavigate();
   const [currentPost, setCurrentPost] = useState(propPost || null);
   const [loading, setLoading] = useState(false);
-  const [openUpdateDialog, setopenUpdateDialog] = useState(false);
-  const { fetchPosts } = useContext(PostsContext);
-  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 
+  // const { fetchPosts } = useContext(PostsContext);
+  const { openUpdateDialog } = useUpdate();
+  const { openDeleteDialog } = useDelete();
   // دوال فتح وإغلاق النافذة
-  const handleOpenDeleteDialog = () => setOpenDeleteDialog(true);
-  const handleCloseDeleteDialog = () => setOpenDeleteDialog(false);
 
   // 1. استخدام useState وقراءة المستخدم عند كل ريندر أو تحديث
   const [user, setUser] = useState(() => {
@@ -127,9 +121,6 @@ export default function Post({ post: propPost, onPostDeleted }) {
     user?.id && post?.author?.id && String(user.id) === String(post.author.id),
   );
 
-  const handleOpenUpdateDialog = () => setopenUpdateDialog(true);
-  const handleCloseUpdateDialog = () => setopenUpdateDialog(false);
-
   const handlePostUpdated = (updatedPost) => {
     setCurrentPost((prev) => ({
       ...prev,
@@ -137,36 +128,15 @@ export default function Post({ post: propPost, onPostDeleted }) {
       comments: updatedPost.comments || prev?.comments,
     }));
   };
-
-  function confirmDelete() {
-    const token = localStorage.getItem("token");
-    const headers = {
-      Authorization: `Bearer ${token}`,
-    };
-
-    axios
-      .delete(`${baseUrl}/posts/${post.id}`, { headers })
-      .then(() => {
-        handleCloseDeleteDialog();
-
-        if (onPostDeleted) {
-          onPostDeleted(post.id);
-        }
-
-        if (fetchPosts) {
-          fetchPosts();
-        }
-
-        if (postId) {
-          navigate("/");
-        }
-      })
-      .catch((err) => {
-        console.error("Error deleting post:", err);
-        handleCloseDeleteDialog();
-      });
-  }
-
+  const handlePostDeleted = () => {
+    if (postId) {
+      // إذا كنا في صفحة المنشور المنفردة نرجع للصفحة الرئيسية
+      navigate("/", { replace: true });
+    } else {
+      // إذا كنا في قائمة المنشورات يمكنك إما إخفاء البوست محلياً أو إعادة جلب البيانات
+      setCurrentPost(null);
+    }
+  };
   return (
     <Container maxWidth="md">
       <Card sx={{ width: "100%", marginTop: "40px" }}>
@@ -197,7 +167,7 @@ export default function Post({ post: propPost, onPostDeleted }) {
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      handleOpenUpdateDialog();
+                      openUpdateDialog(post, handlePostUpdated);
                     }}
                   >
                     Update
@@ -209,7 +179,7 @@ export default function Post({ post: propPost, onPostDeleted }) {
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      handleOpenDeleteDialog();
+                      openDeleteDialog(post, handlePostDeleted);
                     }}
                   >
                     Delete
@@ -306,47 +276,6 @@ export default function Post({ post: propPost, onPostDeleted }) {
           </Box>
         )}
       </Card>
-
-      {/* Update Dialog */}
-      <UpdatePostDialog
-        open={openUpdateDialog}
-        handleClose={handleCloseUpdateDialog}
-        currentPost={post}
-        onPostUpdated={handlePostUpdated}
-      />
-
-      {/* Delete Dialog */}
-      <Dialog
-        open={openDeleteDialog}
-        onClose={handleCloseDeleteDialog}
-        aria-labelledby="delete-dialog-title"
-        aria-describedby="delete-dialog-description"
-      >
-        <DialogTitle id="delete-dialog-title">Delete Post</DialogTitle>
-        <DialogContent>
-          <DialogContentText id="delete-dialog-description">
-            Are you sure you want to delete this post? This action cannot be
-            undone.
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button
-            onClick={handleCloseDeleteDialog}
-            color="inherit"
-            variant="outlined"
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={confirmDelete}
-            color="error"
-            variant="contained"
-            autoFocus
-          >
-            Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
     </Container>
   );
 }

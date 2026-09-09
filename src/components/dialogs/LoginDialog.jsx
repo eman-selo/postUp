@@ -9,10 +9,10 @@ import {
 } from "@mui/material";
 
 import CloseIcon from "@mui/icons-material/Close";
-import { baseUrl } from "../contexts/getPostsContext";
+import { baseUrl } from "../../contexts/getPostsContext";
 import { useState } from "react";
 import axios from "axios";
-import { useAlert } from "../contexts/AlertContext";
+import { useAlert } from "../../contexts/AlertContext";
 export default function LoginDialog({ open, handleClose, onLoginSuccess }) {
   const [userLogin, setUserLogin] = useState({ username: "", password: "" });
   const { showAlert } = useAlert();

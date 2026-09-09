@@ -11,12 +11,12 @@ import MenuItem from "@mui/material/MenuItem";
 import ForumIcon from "@mui/icons-material/Forum";
 import { Link } from "react-router";
 import { useState } from "react";
-import LoginDialog from "./LoginDialog";
-import RegisterDialog from "./RegisterDialog";
+import LoginDialog from "./dialogs/LoginDialog";
+import RegisterDialog from "./dialogs/RegisterDialog";
 import { Avatar } from "@mui/material";
 
 import AddCircleIcon from "@mui/icons-material/AddCircle";
-import NewPostDialog from "./NewPostDialog";
+import NewPostDialog from "./dialogs/NewPostDialog";
 function Navbar() {
   const pages = ["home", "myPosts"];
   const [anchorElNav, setAnchorElNav] = useState(null);

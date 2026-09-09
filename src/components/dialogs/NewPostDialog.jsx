@@ -12,7 +12,7 @@ import {
 
 import CloseIcon from "@mui/icons-material/Close";
 import { useContext, useState } from "react";
-import { baseUrl, PostsContext } from "../contexts/getPostsContext";
+import { baseUrl, PostsContext } from "../../contexts/getPostsContext";
 import axios from "axios";
 
 export default function NewPostDialog({ open, handleClose }) {

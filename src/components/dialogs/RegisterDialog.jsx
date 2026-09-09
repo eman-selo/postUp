@@ -13,9 +13,9 @@ import {
 
 import CloseIcon from "@mui/icons-material/Close";
 import { useState } from "react";
-import { baseUrl } from "../contexts/getPostsContext";
+import { baseUrl } from "../../contexts/getPostsContext.jsx";
 import axios from "axios";
-import { useAlert } from "../contexts/AlertContext.jsx";
+import { useAlert } from "../../contexts/AlertContext.jsx";
 
 export default function RegisterDialog({
   open,
