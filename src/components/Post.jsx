@@ -12,6 +12,8 @@ import {
   CircularProgress,
   Button,
   Skeleton,
+  IconButton as MuiIconButton,
+  Tooltip,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
@@ -32,12 +34,9 @@ export default function Post({ post: propPost }) {
   const [currentPost, setCurrentPost] = useState(propPost || null);
   const [loading, setLoading] = useState(false);
 
-  // const { fetchPosts } = useContext(PostsContext);
   const { openUpdateDialog } = useUpdate();
   const { openDeleteDialog } = useDelete();
-  // دوال فتح وإغلاق النافذة
 
-  // 1. استخدام useState وقراءة المستخدم عند كل ريندر أو تحديث
   const [user, setUser] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem("user"));
@@ -94,7 +93,6 @@ export default function Post({ post: propPost }) {
   const post = currentPost;
   if (!post) return null;
 
-  // --- استخراج ومعالجة رابط الصورة ---
   const getImageUrl = (imageProp) => {
     if (typeof imageProp === "string") return imageProp;
     if (imageProp && typeof imageProp === "object" && imageProp.url) {
@@ -110,7 +108,6 @@ export default function Post({ post: propPost }) {
     typeof post.author.profile_image === "string" &&
     post.author.profile_image.trim() !== "";
 
-  // فحص ما إذا كان هناك رابط صورة صالح
   const hasPostImage =
     Boolean(imageUrl) &&
     typeof imageUrl === "string" &&
@@ -128,15 +125,15 @@ export default function Post({ post: propPost }) {
       comments: updatedPost.comments || prev?.comments,
     }));
   };
+
   const handlePostDeleted = () => {
     if (postId) {
-      // إذا كنا في صفحة المنشور المنفردة نرجع للصفحة الرئيسية
       navigate("/", { replace: true });
     } else {
-      // إذا كنا في قائمة المنشورات يمكنك إما إخفاء البوست محلياً أو إعادة جلب البيانات
       setCurrentPost(null);
     }
   };
+
   return (
     <Container maxWidth="md">
       <Card sx={{ width: "100%", marginTop: "40px" }}>
@@ -145,10 +142,20 @@ export default function Post({ post: propPost }) {
           style={{ textDecoration: "none", color: "#085071" }}
         >
           <CardHeader
-            sx={{ background: "rgb(148 176 203 / 23%)" }}
+            // تم إضافة alignItems: "center" لضبط محاذاة الأزرار مع الصورة والاسم تماماً
+            sx={{
+              background: "rgb(148 176 203 / 23%)",
+              py: 1.5,
+              // إجبار محتوى الـ Header والـ Action على التمركز في المنتصف عمودياً
+              alignItems: "center",
+              "& .MuiCardHeader-action": {
+                alignSelf: "center",
+                margin: 0, // إزالة الـ margins الافتراضية التي تسبب الرفع للأعلى
+              },
+            }}
             avatar={
               <Avatar
-                sx={{ bgcolor: "#085071" }}
+                sx={{ bgcolor: "#085071", width: 42, height: 42 }}
                 aria-label="recipe"
                 src={hasProfileImage ? post.author.profile_image : undefined}
               >
@@ -157,33 +164,87 @@ export default function Post({ post: propPost }) {
                   : "U"}
               </Avatar>
             }
-            title={post.author?.username || post.author?.name || "مستخدم مجهول"}
+            title={
+              <Typography
+                variant="subtitle1"
+                sx={{ fontWeight: 600, color: "#085071" }}
+              >
+                {post.author?.username || post.author?.name || "مستخدم مجهول"}
+              </Typography>
+            }
             action={
               isMyPost && (
-                <Box sx={{ display: "flex", gap: 1 }}>
-                  <Button
-                    variant="contained"
-                    startIcon={<EditIcon />}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      openUpdateDialog(post, handlePostUpdated);
-                    }}
-                  >
-                    Update
-                  </Button>
-                  <Button
-                    variant="contained"
-                    color="error"
-                    startIcon={<DeleteIcon />}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      openDeleteDialog(post, handlePostDeleted);
-                    }}
-                  >
-                    Delete
-                  </Button>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                  {/* للشاشات الكبيرة (Desktop): تظهر الأزرار بالنص والأيقونة */}
+                  <Box sx={{ display: { xs: "none", sm: "flex" }, gap: 1 }}>
+                    <Button
+                      size="small"
+                      variant="contained"
+                      startIcon={<EditIcon />}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        openUpdateDialog(post, handlePostUpdated);
+                      }}
+                    >
+                      Update
+                    </Button>
+                    <Button
+                      size="small"
+                      variant="contained"
+                      color="error"
+                      startIcon={<DeleteIcon />}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        openDeleteDialog(post, handlePostDeleted);
+                      }}
+                    >
+                      Delete
+                    </Button>
+                  </Box>
+
+                  {/* لشاشات الهواتف (Mobile): تظهر الأيقونات فقط */}
+                  <Box sx={{ display: { xs: "flex", sm: "none" }, gap: 0.5 }}>
+                    <Tooltip title="Update">
+                      <MuiIconButton
+                        color="primary"
+                        size="small"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          openUpdateDialog(post, handlePostUpdated);
+                        }}
+                        sx={{
+                          bgcolor: "primary.main",
+                          color: "white",
+                          p: "6px",
+                          "&:hover": { bgcolor: "primary.dark" },
+                        }}
+                      >
+                        <EditIcon fontSize="small" />
+                      </MuiIconButton>
+                    </Tooltip>
+                    <Tooltip title="Delete">
+                      <MuiIconButton
+                        color="error"
+                        size="small"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          openDeleteDialog(post, handlePostDeleted);
+                        }}
+                        sx={{
+                          bgcolor: "error.main",
+                          color: "white",
+                          p: "6px",
+                          "&:hover": { bgcolor: "error.dark" },
+                        }}
+                      >
+                        <DeleteIcon fontSize="small" />
+                      </MuiIconButton>
+                    </Tooltip>
+                  </Box>
                 </Box>
               )
             }
@@ -196,19 +257,20 @@ export default function Post({ post: propPost }) {
             <Skeleton
               animation="wave"
               variant="rectangular"
-              height={350}
-              width="100%"
+              sx={{ height: { xs: 200, sm: 350 }, width: "100%" }}
             />
           ) : (
             <CardMedia
               component="img"
-              height="350"
-              // استخدام الصورة الأصلية إن وجدت وإلا استخدام الصورة الافتراضية
+              sx={{
+                height: { xs: 220, sm: 350 },
+                cursor: "pointer",
+                objectFit: "cover",
+                width: "100%",
+              }}
               image={hasPostImage ? imageUrl : NoImage}
               alt={post?.title || "Post image"}
-              sx={{ cursor: "pointer", objectFit: "cover" }}
               onError={(e) => {
-                // إذا فشل تحميل رابط الصورة من السيرفر، يتم استبداله بالصورة الافتراضية فوراً
                 e.currentTarget.src = NoImage;
               }}
             />
@@ -227,11 +289,18 @@ export default function Post({ post: propPost }) {
             to={`/post/${post.id}`}
             style={{ textDecoration: "none", color: "inherit" }}
           >
-            <Typography variant="h5" sx={{ color: "black", cursor: "pointer" }}>
+            <Typography
+              variant="h5"
+              sx={{
+                color: "black",
+                cursor: "pointer",
+                fontSize: { xs: "1.2rem", sm: "1.5rem" },
+              }}
+            >
               {post.title}
             </Typography>
           </Link>
-          <Typography variant="body2" sx={{ color: "text.secondary" }}>
+          <Typography variant="body2" sx={{ color: "text.secondary", mt: 1 }}>
             {post.body}
           </Typography>
         </CardContent>

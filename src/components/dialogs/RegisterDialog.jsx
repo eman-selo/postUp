@@ -71,19 +71,18 @@ export default function RegisterDialog({
       .catch((error) => {
         if (error.response && error.response.status === 422) {
           const errors = error.response.data.errors;
+          // تم إضافة التحقق من خطأ الصورة هنا 👇
           const firstErrorMessage =
+            errors.image?.[0] ||
             errors.username?.[0] ||
             errors.email?.[0] ||
             errors.password?.[0] ||
             errors.name?.[0] ||
             "Validation Error";
 
-          showAlert(firstErrorMessage, "success");
+          showAlert(firstErrorMessage, "error"); // يفضل جعلها error بدلاً من success
         } else {
-          showAlert(
-            "An unexpected error occurred. Please try again.",
-            "success",
-          );
+          showAlert("An unexpected error occurred. Please try again.", "error");
         }
       });
   }
@@ -181,12 +180,12 @@ export default function RegisterDialog({
                 <input
                   type="file"
                   hidden
-                  accept="image/*"
+                  accept=".png, .jpg, .jpeg"
                   onChange={handleAvatarChange}
                 />
               </IconButton>
               <Typography variant="body2" color="textSecondary">
-                Click avatar to change profile picture
+                Click avatar to change profile picture (PNG, JPG, JPEG)
               </Typography>
             </Box>
           </form>

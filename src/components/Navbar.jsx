@@ -17,6 +17,7 @@ import { Avatar } from "@mui/material";
 
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import NewPostDialog from "./dialogs/NewPostDialog";
+
 function Navbar() {
   const pages = ["home", "myPosts"];
   const [anchorElNav, setAnchorElNav] = useState(null);
@@ -24,7 +25,6 @@ function Navbar() {
   const [openRegisterDialog, setOpenRegisterDialog] = useState(false);
   const [openNewPostDialog, setOpenNewPostDialog] = useState(false);
 
-  // Reading data on initial mount without using useEffect
   const [user, setUser] = useState(() => {
     const savedUser = localStorage.getItem("user");
     if (savedUser) {
@@ -38,7 +38,6 @@ function Navbar() {
     return null;
   });
 
-  // A callback function executed only on successful registration/login
   const updateUserState = () => {
     const savedUser = localStorage.getItem("user");
     if (savedUser) {
@@ -46,7 +45,6 @@ function Navbar() {
         setUser(JSON.parse(savedUser));
       } catch (err) {
         console.log(err);
-
         setUser(null);
       }
     } else {
@@ -54,7 +52,6 @@ function Navbar() {
     }
   };
 
-  // Logout Clicked
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
@@ -71,6 +68,7 @@ function Navbar() {
   const handleCloseRegisterDialog = () => setOpenRegisterDialog(false);
   const handleOpenNewPostDialog = () => setOpenNewPostDialog(true);
   const handleCloseNewPostDialog = () => setOpenNewPostDialog(false);
+
   const hasProfileImage =
     user?.profile_image &&
     typeof user.profile_image === "string" &&
@@ -84,6 +82,7 @@ function Navbar() {
       <AppBar position="fixed" sx={{ background: "#8cadcf" }}>
         <Container maxWidth="xl">
           <Toolbar disableGutters>
+            {/* عرض الأيقونة واسم الموقع للشاشات الكبيرة Desktop */}
             <ForumIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
             <Typography
               variant="h6"
@@ -103,8 +102,8 @@ function Navbar() {
               PostUp
             </Typography>
 
-            {/* QS Menu Mobile */}
-            <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
+            {/* القائمة المنسدلة للموبايل */}
+            <Box sx={{ flexGrow: 0, display: { xs: "flex", md: "none" } }}>
               <IconButton
                 size="large"
                 aria-label="account of current user"
@@ -146,27 +145,35 @@ function Navbar() {
               </Menu>
             </Box>
 
-            <ForumIcon sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} />
-            <Typography
-              variant="h5"
-              noWrap
-              component="a"
-              href="#app-bar-with-responsive-menu"
+            {/* أخذنا الأيقونة واسم الموقع للموبايل وضعناهما معاً بجانب زر القائمة وبخط أصغر */}
+            <Box
               sx={{
-                mr: 2,
                 display: { xs: "flex", md: "none" },
+                alignItems: "center",
                 flexGrow: 1,
-                fontFamily: "monospace",
-                fontWeight: 700,
-                letterSpacing: ".3rem",
-                color: "inherit",
-                textDecoration: "none",
+                gap: 1,
               }}
             >
-              PostUp
-            </Typography>
+              <ForumIcon sx={{ fontSize: "20px" }} />
+              <Typography
+                variant="subtitle1"
+                noWrap
+                component="a"
+                href="#app-bar-with-responsive-menu"
+                sx={{
+                  fontFamily: "monospace",
+                  fontWeight: 700,
+                  fontSize: "1rem", // حجم خط أصغر ومناسب لشاشات الموبايل
+                  letterSpacing: ".1rem",
+                  color: "inherit",
+                  textDecoration: "none",
+                }}
+              >
+                PostUp
+              </Typography>
+            </Box>
 
-            {/* Links Desktop */}
+            {/* روابط سطح المكتب (Desktop) */}
             <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
               {pages.map((page) => (
                 <Link
@@ -184,7 +191,7 @@ function Navbar() {
               ))}
             </Box>
 
-            {/* Render auth buttons, or user avatar and name with logout button */}
+            {/* أزرار المصادقة أو صورة المستخدم وزر الخروج */}
             {!user ? (
               <Box>
                 <Button
@@ -228,6 +235,7 @@ function Navbar() {
                       fontFamily: "monospace",
                       fontWeight: 700,
                       color: "inherit",
+                      display: { xs: "none", sm: "block" },
                     }}
                   >
                     {user?.username}
@@ -265,20 +273,18 @@ function Navbar() {
         </Container>
       </AppBar>
 
-      {/* Login Dialog */}
       <LoginDialog
         open={openLoginDialog}
         handleClose={handleCloseLoginDialog}
         onLoginSuccess={updateUserState}
       />
 
-      {/* Register Dialog */}
       <RegisterDialog
         open={openRegisterDialog}
         handleClose={handleCloseRegisterDialog}
         onRegisterSuccess={updateUserState}
       />
-      {/* New Post Dialog */}
+
       <NewPostDialog
         open={openNewPostDialog}
         handleClose={handleCloseNewPostDialog}
