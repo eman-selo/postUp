@@ -8,11 +8,11 @@ export default function Posts() {
   const loaderRef = useRef(null);
 
   useEffect(() => {
-    // إنشاء المراقب لمتابعة التمرير
+    // Create the observer to track scrolling
     const observer = new IntersectionObserver(
       (entries) => {
         const target = entries[0];
-        // إذا ظهر عنصر التحميل أسفل الصفحة وكانت هناك صفحات إضافية ولم نكن في حالة تحميل حالية
+        // If the loading element at the bottom of the page appears, there are additional pages, and we are not currently loading
         if (target.isIntersecting && hasMore && !loading) {
           setPage((prevPage) => prevPage + 1);
         }
@@ -39,7 +39,7 @@ export default function Posts() {
         </Box>
       ))}
 
-      {/* العنصر المرجعي أسفل الصفحة لمراقبة التمرير وإظهار اللودر */}
+      {/* Reference element at the bottom of the page to monitor scrolling and show the loader */}
       <Box
         ref={loaderRef}
         sx={{
@@ -53,7 +53,7 @@ export default function Posts() {
         {loading && <CircularProgress size={32} />}
         {!hasMore && (
           <Typography color="text.secondary" variant="body2">
-            وصلت إلى نهاية المنشورات
+            Reached the end of the posts
           </Typography>
         )}
       </Box>

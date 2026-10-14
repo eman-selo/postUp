@@ -24,7 +24,6 @@ import AddComment from "./AddComment";
 import { useEffect, useState } from "react";
 import { baseUrl } from "../contexts/getPostsContext";
 import axios from "axios";
-import NoImage from "../assets/NoImage.jpg";
 import { useUpdate } from "../contexts/UpdateContext";
 import { useDelete } from "../contexts/DeleteContext";
 
@@ -142,15 +141,13 @@ export default function Post({ post: propPost }) {
           style={{ textDecoration: "none", color: "#085071" }}
         >
           <CardHeader
-            // تم إضافة alignItems: "center" لضبط محاذاة الأزرار مع الصورة والاسم تماماً
             sx={{
               background: "rgb(148 176 203 / 23%)",
               py: 1.5,
-              // إجبار محتوى الـ Header والـ Action على التمركز في المنتصف عمودياً
               alignItems: "center",
               "& .MuiCardHeader-action": {
                 alignSelf: "center",
-                margin: 0, // إزالة الـ margins الافتراضية التي تسبب الرفع للأعلى
+                margin: 0,
               },
             }}
             avatar={
@@ -169,13 +166,13 @@ export default function Post({ post: propPost }) {
                 variant="subtitle1"
                 sx={{ fontWeight: 600, color: "#085071" }}
               >
-                {post.author?.username || post.author?.name || "مستخدم مجهول"}
+                {post.author?.username || post.author?.name || "Unknown User"}
               </Typography>
             }
             action={
               isMyPost && (
                 <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                  {/* للشاشات الكبيرة (Desktop): تظهر الأزرار بالنص والأيقونة */}
+                  {/* For large screens (Desktop): Buttons appear with text and icon */}
                   <Box sx={{ display: { xs: "none", sm: "flex" }, gap: 1 }}>
                     <Button
                       size="small"
@@ -204,7 +201,7 @@ export default function Post({ post: propPost }) {
                     </Button>
                   </Box>
 
-                  {/* لشاشات الهواتف (Mobile): تظهر الأيقونات فقط */}
+                  {/* For mobile screens (Mobile): Icons appear only */}
                   <Box sx={{ display: { xs: "flex", sm: "none" }, gap: 0.5 }}>
                     <Tooltip title="Update">
                       <MuiIconButton
@@ -252,30 +249,33 @@ export default function Post({ post: propPost }) {
         </Link>
         <Divider />
 
-        <Link to={`/post/${post.id}`}>
-          {loading ? (
-            <Skeleton
-              animation="wave"
-              variant="rectangular"
-              sx={{ height: { xs: 200, sm: 350 }, width: "100%" }}
-            />
-          ) : (
-            <CardMedia
-              component="img"
-              sx={{
-                height: { xs: 220, sm: 350 },
-                cursor: "pointer",
-                objectFit: "cover",
-                width: "100%",
-              }}
-              image={hasPostImage ? imageUrl : NoImage}
-              alt={post?.title || "Post image"}
-              onError={(e) => {
-                e.currentTarget.src = NoImage;
-              }}
-            />
-          )}
-        </Link>
+        {/* Display the post image only if it actually exists */}
+        {hasPostImage && (
+          <Link to={`/post/${post.id}`}>
+            {loading ? (
+              <Skeleton
+                animation="wave"
+                variant="rectangular"
+                sx={{ height: { xs: 200, sm: 350 }, width: "100%" }}
+              />
+            ) : (
+              <CardMedia
+                component="img"
+                sx={{
+                  height: { xs: 220, sm: 350 },
+                  cursor: "pointer",
+                  objectFit: "cover",
+                  width: "100%",
+                }}
+                image={imageUrl}
+                alt={post?.title || "Post image"}
+                onError={(e) => {
+                  e.currentTarget.style.display = "none";
+                }}
+              />
+            )}
+          </Link>
+        )}
 
         <CardContent>
           <Typography

@@ -27,12 +27,12 @@ export const AlertProvider = ({ children }) => {
     <AlertContext.Provider value={{ showAlert }}>
       {children}
 
-      {/* التنبيه العالمي المنبثق (Toast / Snackbar) */}
+      {/* Global Snackbar / Toast */}
       <Snackbar
         open={alert.open}
-        autoHideDuration={4000} // يختفي تلقائياً بعد 4 ثوانٍ
+        autoHideDuration={4000}
         onClose={handleClose}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }} // موقعه أعلى الشاشة
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
       >
         <Alert
           onClose={handleClose}
@@ -46,6 +46,5 @@ export const AlertProvider = ({ children }) => {
   );
 };
 
-// Hook مخصص لسهولة الاستخدام
 // eslint-disable-next-line react-refresh/only-export-components
 export const useAlert = () => useContext(AlertContext);

@@ -19,7 +19,6 @@ import AddCircleIcon from "@mui/icons-material/AddCircle";
 import NewPostDialog from "./dialogs/NewPostDialog";
 
 function Navbar() {
-  const pages = ["home", "myPosts"];
   const [anchorElNav, setAnchorElNav] = useState(null);
   const [openLoginDialog, setOpenLoginDialog] = useState(false);
   const [openRegisterDialog, setOpenRegisterDialog] = useState(false);
@@ -77,12 +76,18 @@ function Navbar() {
   const displayName = user?.username || user?.name || "User";
   const firstLetter = displayName.charAt(0).toUpperCase();
 
+  const pages = user
+    ? [
+        { title: "Home", path: "home" },
+        { title: "My Posts", path: `myPosts/${user?.id || ""}` },
+      ]
+    : [{ title: "Home", path: "home" }];
+
   return (
     <>
       <AppBar position="fixed" sx={{ background: "#8cadcf" }}>
         <Container maxWidth="xl">
           <Toolbar disableGutters>
-            {/* عرض الأيقونة واسم الموقع للشاشات الكبيرة Desktop */}
             <ForumIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
             <Typography
               variant="h6"
@@ -102,7 +107,7 @@ function Navbar() {
               PostUp
             </Typography>
 
-            {/* القائمة المنسدلة للموبايل */}
+            {/* Mobile Menu */}
             <Box sx={{ flexGrow: 0, display: { xs: "flex", md: "none" } }}>
               <IconButton
                 size="large"
@@ -131,13 +136,13 @@ function Navbar() {
                 sx={{ display: { xs: "block", md: "none" } }}
               >
                 {pages.map((page) => (
-                  <MenuItem key={page} onClick={handleCloseNavMenu}>
+                  <MenuItem key={page.path} onClick={handleCloseNavMenu}>
                     <Link
-                      to={`/${page}${page === "myPosts" ? `/${user?.id || ""}` : ""}`}
+                      to={`/${page.path}`}
                       style={{ textDecoration: "none", color: "inherit" }}
                     >
                       <Typography sx={{ textAlign: "center" }}>
-                        {page}
+                        {page.title}
                       </Typography>
                     </Link>
                   </MenuItem>
@@ -145,7 +150,6 @@ function Navbar() {
               </Menu>
             </Box>
 
-            {/* أخذنا الأيقونة واسم الموقع للموبايل وضعناهما معاً بجانب زر القائمة وبخط أصغر */}
             <Box
               sx={{
                 display: { xs: "flex", md: "none" },
@@ -163,7 +167,7 @@ function Navbar() {
                 sx={{
                   fontFamily: "monospace",
                   fontWeight: 700,
-                  fontSize: "1rem", // حجم خط أصغر ومناسب لشاشات الموبايل
+                  fontSize: "1rem",
                   letterSpacing: ".1rem",
                   color: "inherit",
                   textDecoration: "none",
@@ -173,25 +177,25 @@ function Navbar() {
               </Typography>
             </Box>
 
-            {/* روابط سطح المكتب (Desktop) */}
+            {/* Desktop Links */}
             <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
               {pages.map((page) => (
                 <Link
-                  key={page}
-                  to={`/${page}${page === "myPosts" ? `/${user?.id || ""}` : ""}`}
+                  key={page.path}
+                  to={`/${page.path}`}
                   style={{ textDecoration: "none" }}
                 >
                   <Button
                     onClick={handleCloseNavMenu}
                     sx={{ my: 2, color: "white", display: "block" }}
                   >
-                    {page}
+                    {page.title}
                   </Button>
                 </Link>
               ))}
             </Box>
 
-            {/* أزرار المصادقة أو صورة المستخدم وزر الخروج */}
+            {/* Auth Buttons or User Profile & Logout */}
             {!user ? (
               <Box>
                 <Button

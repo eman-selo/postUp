@@ -34,7 +34,7 @@ export function UpdateProvider({ children }) {
         open={openUpdateDialog}
         handleClose={handleCloseUpdateDialog}
         currentPost={currentPost}
-        onPostUpdated={handlePostUpdated} // تمرير دالة التحديث لمكون الحوار
+        onPostUpdated={handlePostUpdated}
       />
     </UpdateContext.Provider>
   );

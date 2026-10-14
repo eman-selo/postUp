@@ -17,7 +17,7 @@ export default function MyPosts() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // 1. جلب البيانات من السيرفر عند التحميل أو تغير الـ userId
+  // 1. Fetch data from the server on load or when userId changes
   useEffect(() => {
     if (!userId) return;
 
@@ -40,28 +40,27 @@ export default function MyPosts() {
       });
   }, [userId]);
 
-  // 2. معالج الحدث عند إنشاء منشور جديد
+  // 2. Event handler for when a new post is created
   const handleNewPostCreated = useCallback(
     (event) => {
       const createdPost = event.detail;
       if (!createdPost) return;
 
-      // استخراج معرف الكاتب بأكثر من طريقة لضمان التطابق
+      // Extract the author ID in multiple ways to ensure a match
       const authorId =
         createdPost.author?.id ?? createdPost.user?.id ?? createdPost.user_id;
-
-      // إذا كان المنشور يخص المستخدم الحالي المعروض أو إذا تعذر معرفة المعرف (يضاف احتياطياً)
+      // If the post belongs to the currently displayed user or if the ID couldn't be determined (added as a fallback)
       const isCurrentProfileUser =
         String(authorId) === String(userId) || !authorId;
 
       if (isCurrentProfileUser) {
-        // إضافة المنشور في الأعلى مع التأكد من عدم التكرار
+        // Add the post at the top while ensuring no duplication
         setPosts((prevPosts) => {
           const exists = prevPosts.some((p) => p.id === createdPost.id);
           return exists ? prevPosts : [createdPost, ...prevPosts];
         });
 
-        // تحديث عداد المنشورات
+        // Update the posts counter
         setUser((prevUser) =>
           prevUser
             ? { ...prevUser, posts_count: (prevUser.posts_count || 0) + 1 }
@@ -72,7 +71,7 @@ export default function MyPosts() {
     [userId],
   );
 
-  // 3. الاشتراك في الحدث وإلغاء الاشتراك عند التنظيف
+  // 3. Subscribe to the event and unsubscribe on cleanup
   useEffect(() => {
     window.addEventListener("postCreated", handleNewPostCreated);
 

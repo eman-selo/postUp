@@ -18,7 +18,6 @@ import axios from "axios";
 export default function NewPostDialog({ open, handleClose }) {
   const [newPost, setNewPost] = useState({ title: "", body: "", image: null });
 
-  // استدعاء addNewPost بدلاً من refreshPosts
   const { addNewPost } = useContext(PostsContext);
 
   const handleImageChange = (event) => {
@@ -53,13 +52,12 @@ export default function NewPostDialog({ open, handleClose }) {
       .then((res) => {
         console.log("post created", res);
 
-        // إدخال البوست القادم من السيرفر فوراً لقمة الـ State
         if (res.data?.data) {
           if (typeof addNewPost === "function") {
             addNewPost(res.data.data);
           }
 
-          // 2. إطلاق حدث مخصص ليستمع له MyPosts
+          //  Dispatch a custom event for MyPosts to listen
           window.dispatchEvent(
             new CustomEvent("postCreated", { detail: res.data.data }),
           );

@@ -11,7 +11,7 @@ export function PostsProvider({ children }) {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
 
-  // دالة جلب المنشورات
+  // Fetch posts function
   const fetchPosts = useCallback((currentPage) => {
     setLoading(true);
 
@@ -24,7 +24,7 @@ export function PostsProvider({ children }) {
         if (currentPage === 1) {
           setPosts(newPosts);
         } else {
-          // ✅ منع تكرار العناصر عند جلب صفحات إضافية
+          //  Prevent duplicate items when fetching additional pages
           setPosts((prevPosts) => {
             const combined = [...prevPosts, ...newPosts];
             return combined.filter(
@@ -46,13 +46,13 @@ export function PostsProvider({ children }) {
       });
   }, []);
 
-  // جلب البيانات عند تغير رقم الصفحة
+  // Fetch data when the page number changes
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchPosts(page);
   }, [page, fetchPosts]);
 
-  // ✅ دالة إضافة منشور جديد إلى بداية القائمة فوراً مع منع التكرار
+  // ✅ Function to add a new post to the beginning of the list immediately while preventing duplication
   const addNewPost = (createdPost) => {
     if (!createdPost) return;
     setPosts((prevPosts) => {
@@ -62,7 +62,7 @@ export function PostsProvider({ children }) {
     });
   };
 
-  // دالة إعادة التحديث الكامل
+  // Full refresh function
   const refreshPosts = () => {
     if (page === 1) {
       fetchPosts(1);

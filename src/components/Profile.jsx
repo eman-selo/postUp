@@ -22,7 +22,7 @@ const Profile = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // ✅ طلب البيانات داخل useEffect يمنع التكرار اللانهائي
+  //  Requesting data inside useEffect prevents infinite loops
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);

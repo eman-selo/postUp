@@ -24,17 +24,16 @@ export default function UpdatePostDialog({
   const [updatePost, setUpdatePost] = useState({
     title: "",
     body: "",
-    image: null, // تخزين كائن الملف فقط أو null
+    image: null,
   });
 
-  // تحديث الحالة عند فتح النافذة أو تغيير المنشور الحالي
   useEffect(() => {
     if (currentPost) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setUpdatePost({
         title: currentPost.title || "",
         body: currentPost.body || "",
-        image: null, // إعادة ضبط الصورة إلى null لتجنب إرسال الرابط القديم كملف
+        image: null,
       });
     }
   }, [currentPost, open]);
@@ -65,7 +64,7 @@ export default function UpdatePostDialog({
     formData.append("body", updatePost.body);
     formData.append("_method", "put");
 
-    // إرسال الصورة فقط إذا قام المستخدم باختيار ملف جديد فعلياً
+    // Send the image only if the user actually selected a new file
     if (updatePost.image instanceof File) {
       formData.append("image", updatePost.image);
     }
@@ -75,12 +74,12 @@ export default function UpdatePostDialog({
       .then((res) => {
         const updatedData = res.data.data;
 
-        // 1. تحديث البوست محلياً فوراً
+        // 1. Update the post locally immediately
         if (onPostUpdated) {
           onPostUpdated(updatedData);
         }
 
-        // 2. تحديث قائمة البوستات في Context
+        // 2. Update the posts list in Context
         if (fetchPosts) {
           fetchPosts();
         }
